@@ -14,10 +14,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "http": "0.0.1-security",
     "https": "^1.0.0",
     "mongoose": "^5.10.9",
-    "node-fetch": "^2.6.1",
-    "request": "^2.88.2"
+    "node-fetch": "^2.6.1"
   }
 }
