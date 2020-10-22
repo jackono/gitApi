@@ -16,7 +16,7 @@ var CommentSchema = new Schema({
       type: Number,
       default: 0
   },
-  Created_date: {
+  dateUpdated: {
     type: Date,
     default: Date.now
   }

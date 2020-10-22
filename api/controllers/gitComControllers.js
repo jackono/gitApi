@@ -1,5 +1,7 @@
 'use strict';
 
+const dotenv = require('dotenv').config();
+var async = require("async");
 const e = require('express');
 var https = require('https');
 const fetch = require("node-fetch");
@@ -7,7 +9,7 @@ var mongoose = require('mongoose'),
   Task = mongoose.model('Comments');
 
 exports.list_all_comments = function(req, res) {
-  Task.find({orgname: req.params.orgname, isDeleted: 0}, '_id comment Created_date', function(err, task) {
+  Task.find({orgname: req.params.orgname, isDeleted: 0}, '_id comment dateUpdated', function(err, task) {
     if (err)
       res.send(err);
     res.json(task);
@@ -16,123 +18,81 @@ exports.list_all_comments = function(req, res) {
 
 
 exports.post_a_comment = function(req, res) {
-  var params = req.body;
-  params.orgname = req.params.orgname;
+  var gitRes = req.body;
+  gitRes.orgname = req.params.orgname;
 
-  var new_task = new Task(params);
-  new_task.save(function(err, task) {
-    if (err)
-      res.send(err);
-    res.json(task);
-  });
+  const url = process.env.GITHUB_API_ORG + gitRes.orgname;
+
+    const getData = async url => {
+      try {
+        const response = await fetch(url);
+        const user = await response.json();
+
+        if(response.status != 200){
+          res.json({
+            "message": "Organization Not Found in Github",
+            "documentation_url": "https://docs.github.com/rest/reference/orgs#get-an-organization"
+          });
+        }
+        else{
+          var new_task = new Task(gitRes);
+          new_task.save(function(err, task) {
+            if (err)
+              res.send(err);
+            res.json(task);
+          });
+        }
+        } catch (error) {
+            console.log(error);
+          }
+    };
+    getData(url);
 };
 
+exports.user_details = async function(req, res) {
 
-exports.user_details = function(req, res) {
 
-  var users = [];
-  var options = {
-    host: 'api.github.com',
-    path: '/orgs/' + req.params.orgname + '/members',
-    method: 'GET',
-    headers: {'user-agent': 'node.js'}
-  };
-  var request = https.request(options, function(response) {
- 
-    var body = ''; 
-    var sortedFollowers = ''
-    
-    
-    response.on("data", function (chunk) {
-        body += chunk.toString('utf8');
-    });
-    
-    response.on("end", async function(err){
-        
-        if (response.statusCode != 200)
-           res.send(err);
-        var members = JSON.parse(body);
-        // process.nextTick(function next(){
+  const url = process.env.GITHUB_API_ORG + req.params.orgname + '/members';
+  console.log(url);
+  const getData = async url => {
+    try {
+      const response = await fetch(url);
+      const members = await response.json();
 
-        members.forEach(function(list_user) {
-        // for(var list_user of members){
-          options.path = '/users/' + list_user.login;
-          // return new Promise((resolve, reject) => {
-          var request = https.request(options, function(response){
-            var body = ''; 
-         
-            response.on("data", function(chunk){
-                body += chunk.toString('utf8');
-            });
-            response.on("end", function(err){
-              if (err)
-                res.send(err);
-              var user = JSON.parse(body);
-              var git_user = {
-                "login": list_user.login,
-                "avatar_url": list_user.avatar_url,
-                "num_followers": user.followers,
-                "num_following": user.following
-              };
-              // console.log(git_user);
-              users.push(git_user);
-              // sortedFollowers = users.sort((low, high) => high.num_followers - low.num_followers);
-              // console.log(users);
-              });
-            });
-          
-          // const url = 'https://api.github.com/users/' + list_user.login;
+      if(response.status != 200){
+        res.send(members);
+      }
+      else{
+        async.mapLimit(members, 5, async function(list_user) {
+           
+          const url = process.env.GITHUB_API_USER + list_user.login;
+  
+          const response = await fetch(url);
+          const user = await response.json();
+          var git_user = {
+            login: list_user.login,
+            avatar_url: list_user.avatar_url,
+            num_followers: user.followers,
+            num_following: user.following
+          };
+          return git_user
 
-          // const getData = async url => {
-          // try {
-          //   const response = await fetch(url);
-          //   const user = await response.json();
-          //   git_user = {
-          //     login: list_user.login,
-          //     avatar_url: list_user.avatar_url,
-          //     num_followers: user.followers,
-          //     num_following: user.following
-          //   };
-          //   users.push(git_user);
-          // } catch (error) {
-          //     console.log(error);
-          //   }
-          //   console.log(users);
-          // };
-
-          // getData(url);
-          // users.push(git_user);
-          // console.log(users);
-          // process.nextTick(next);
-          // console.log(users);
-          request.end();
-        });
-        // }
-        await timeout(2000);
-        // sortedFollowers = Object.keys(users).map(function (key){
-        //   return users[key];
-        // }).sort((low, high) => high.num_followers < low.num_followers);
-        sortedFollowers = users.sort((low, high) => high.num_followers - low.num_followers);
-        console.log(sortedFollowers);
-        res.json(sortedFollowers);
-        // console.log(JSON.parse(body));
-        });
-    });
-    // console.log(users);
-    request.end();
-    // res.json(users);
-    
+          }, (err, results) => {
+              if (err) throw err
+                res.send(results.sort((low, high) => high.num_followers - low.num_followers));
+          });
+      }
+    } catch (error) {
+        console.log(error);
+      }
+    };       
+getData(url);
 };
-
 
 exports.delete_all_comments = function(req, res) {
-  Task.updateMany({orgname: req.params.orgname}, {isDeleted : 1}, function(err, task) {
+  Task.updateMany({orgname: req.params.orgname}, {isDeleted : 1, dateUpdated: Date.now()}, function(err, task) {
     if (err)
       res.send(err);
-    res.json({ message: req.params.orgname + '\'s comment/s successfully deleted' });
+    res.json({ status: 'success', message: req.params.orgname + '\'s comment/s successfully deleted' });
   });
 };
-
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}

@@ -1,3 +1,5 @@
+const dotenv = require('dotenv').config();
+
 var express = require('express'),
   app = express(),
   port = process.env.PORT || 3000,
@@ -7,7 +9,7 @@ var express = require('express'),
   
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/practice'); 
+mongoose.connect(process.env.MONGODB_URL); 
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,7 +20,8 @@ var routes = require('./api/routes/gitComRoutes'); //importing route
 routes(app); //register the route
 
 
-app.listen(port);
+const server = app.listen(port, function(){
+  console.log('Github comments RESTful API server started on: ' + port);
+}); 
 
-
-console.log('Github comments RESTful API server started on: ' + port);
+module.exports = server;
