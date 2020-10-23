@@ -53,3 +53,6 @@ Steps to build a Docker image:
             Snapshots:   0 total
             Time:        19.85 s
             Ran all test suites.
+
+FAQs:
+   There is an existing error for the GitHub API Rate Limiting. Authenticated requests not yet included.
