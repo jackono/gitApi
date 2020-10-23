@@ -11,6 +11,9 @@ I assume you have installed Docker and it is running.
 
 See the [Docker website](http://www.docker.io/gettingstarted/#h_installation) for installation instructions.
 
+On the .env file, change MONGODB_URL to your string connection. 
+Note: Use mongodb://mongo:PORT/DATABASE for Linux and mongodb://localhost:PORT/DATABASE for Windows
+
 Build
 -----
 
@@ -34,6 +37,7 @@ Steps to build a Docker image:
 4. To test the application using jest.
          docker-compose down //stop containers
          docker-compose -p test run --rm web npm run test
+   Or just run npm test on your host machine.    
 
    Sample test result:
    
