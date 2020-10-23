@@ -14,7 +14,7 @@ const swaggerOptions = {
     info: {
       version: "1.0.0",
       title: "Github API",
-      description: "Github API Information",
+      description: "Github API to save comments on MongoDB for a particular Organization and retrieve member's details. ",
       contact: {
         name: "Jackono Fabella"
       }
