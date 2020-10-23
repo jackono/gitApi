@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "PORT=3030 jest",
+    "test": "jest --detectOpenHandles",
     "start": "nodemon -L server.js"
   },
   "author": "",
@@ -20,7 +20,10 @@
     "express": "^4.17.1",
     "https": "^1.0.0",
     "mongoose": "^5.10.9",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "swagger-autogen": "^1.2.5",
+    "swagger-jsdoc": "^4.3.1",
+    "swagger-ui-express": "^4.1.4"
   },
   "jest": {
     "testEnvironment": "node",

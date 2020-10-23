@@ -12,7 +12,10 @@ exports.list_all_comments = function(req, res) {
   Task.find({orgname: req.params.orgname, isDeleted: 0}, '_id comment dateUpdated', function(err, task) {
     if (err)
       res.send(err);
-    res.json(task);
+    if (task.length < 1)
+      res.status(404).json({"error": "Organization not in database"});
+    else
+      res.json(task);
   });
 };
 
@@ -29,7 +32,7 @@ exports.post_a_comment = function(req, res) {
         const user = await response.json();
 
         if(response.status != 200){
-          res.json({
+          res.status(response.status).json({
             "message": "Organization Not Found in Github",
             "documentation_url": "https://docs.github.com/rest/reference/orgs#get-an-organization"
           });
@@ -53,14 +56,13 @@ exports.user_details = async function(req, res) {
 
 
   const url = process.env.GITHUB_API_ORG + req.params.orgname + '/members';
-  console.log(url);
   const getData = async url => {
     try {
       const response = await fetch(url);
       const members = await response.json();
 
       if(response.status != 200){
-        res.send(members);
+        res.status(response.status).send(members);
       }
       else{
         async.mapLimit(members, 5, async function(list_user) {
@@ -90,9 +92,17 @@ getData(url);
 };
 
 exports.delete_all_comments = function(req, res) {
-  Task.updateMany({orgname: req.params.orgname}, {isDeleted : 1, dateUpdated: Date.now()}, function(err, task) {
+  Task.find({orgname: req.params.orgname, isDeleted: 0}, '_id comment dateUpdated', function(err, task) {
     if (err)
       res.send(err);
-    res.json({ status: 'success', message: req.params.orgname + '\'s comment/s successfully deleted' });
+    if (task.length < 1)
+      res.status(404).json({"error": "Organization not in database"});
+    else{
+      Task.updateMany({orgname: req.params.orgname}, {isDeleted : 1, dateUpdated: Date.now()}, function(err, task) {
+        if (err)
+          res.send(err);
+        res.json({ status: 'success', message: req.params.orgname + '\'s comment/s successfully deleted' });
+      });
+    }
   });
 };
