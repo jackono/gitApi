@@ -13,10 +13,10 @@ const swaggerOptions = {
   swaggerDefinition: {
     info: {
       version: "1.0.0",
-      title: "Customer API",
-      description: "Customer API Information",
+      title: "Github API",
+      description: "Github API Information",
       contact: {
-        name: "Amazing Developer"
+        name: "Jackono Fabella"
       },
       servers: ["http://localhost:3030"]
     }
@@ -45,12 +45,18 @@ const server = app.listen(port, function(){
 // Routes
 /**
  * @swagger
- * /customers:
+ * /orgs/{orgname}/comments:
  *  get:
  *    description: Use to request all customers
  *    responses:
  *      '200':
  *        description: A successful response
+ *    parameters:
+ *     - in: path
+ *       name: orgname   # Note the name is the same as in the path
+ *       required: true
+ *       type: string
+ *       description: The Github Organization name.
  */
 
 module.exports = server;

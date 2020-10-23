@@ -14,7 +14,7 @@ var CommentSchema = new Schema({
   },
   isDeleted: {
       type: Number,
-      default: 0
+      default: false
   },
   dateUpdated: {
     type: Date,

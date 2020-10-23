@@ -92,16 +92,20 @@ getData(url);
 };
 
 exports.delete_all_comments = function(req, res) {
-  Task.find({orgname: req.params.orgname, isDeleted: 0}, '_id comment dateUpdated', function(err, task) {
+  Task.find({orgname: req.params.orgname, isDeleted: 0}, '_id comment dateUpdated', async function(err, task) {
     if (err)
       res.send(err);
-    if (task.length < 1)
+    var docCount = await Task.countDocuments({orgname: req.params.orgname});
+
+    if (docCount < 1)
       res.status(404).json({"error": "Organization not in database"});
+    else if (task.length < 1 && docCount > 0)
+      res.status(404).json({"error": "Github Organization Comments are soft deleted. Please contact your Database Administrator."});
     else{
       Task.updateMany({orgname: req.params.orgname}, {isDeleted : 1, dateUpdated: Date.now()}, function(err, task) {
         if (err)
           res.send(err);
-        res.json({ status: 'success', message: req.params.orgname + '\'s comment/s successfully deleted' });
+        res.status(200).json({ status: 'success', message: req.params.orgname + '\'s comment/s successfully soft deleted' });
       });
     }
   });
