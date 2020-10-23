@@ -13,7 +13,7 @@ var CommentSchema = new Schema({
     required: 'Kindly enter a comment'
   },
   isDeleted: {
-      type: Number,
+      type: Boolean,
       default: false
   },
   dateUpdated: {

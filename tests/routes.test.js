@@ -7,7 +7,7 @@ describe('Post Endpoints', () => {
     const res = await request(app)
       .post(`/orgs/${orgName}/comments`)
       .send({
-        comment: 'test is cool',
+        comment: 'Looking to hire SE Asia top dev talent!',
       });
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('_id');
@@ -41,6 +41,13 @@ describe('Post Endpoints', () => {
    const orgName = 'abc'
    const res = await request(app).delete(`/orgs/${orgName}/comments`);
    expect(res.statusCode).toEqual(404);
+   expect(res.body.reason).toContain("Not Found");
+ });
+  it('should return an error when deleting soft deleted collection', async () => {
+   const orgName = 'xendit'
+   const res = await request(app).delete(`/orgs/${orgName}/comments`);
+   expect(res.statusCode).toEqual(404);
+   expect(res.body.reason).toContain("Soft Deleted");
  });
   it('should return an error when fetching the members from non-existing github org', async () => {
    const orgName = 'abc'
