@@ -45,12 +45,74 @@ const server = app.listen(port, function(){
 // Routes
 /**
  * @swagger
- * /customers:
- *  get:
- *    description: Use to request all customers
+ * /orgs/{org-name}/comments:
+ *  post:
+ *    description: Use to allow the user to persist comments against a given organization
  *    responses:
  *      '200':
- *        description: A successful response
+ *        description: All comments have been saved in MongoDB
+ *      '404':
+ *        description: Organization does not exist in Github
+ *    parameters:
+ *     - in: path
+ *       name: org-name   # Note the name is the same as in the path
+ *       required: true
+ *       type: string
+ *       description: The Github Organization name
  */
-
+ 
+ /**
+ * @swagger
+ * /orgs/{org-name}/comments:
+ *  get:
+ *    description: Use to return an array of all the comments that have been registered against the organization
+ *    responses:
+ *      '200':
+ *        description: All comments associated with the organization have been retrieved
+ *      '404':
+ *        description: Organization does not exist in MongoDB
+ *    parameters:
+ *     - in: path
+ *       name: org-name   # Note the name is the same as in the path
+ *       required: true
+ *       type: string
+ *       description: The Github Organization name
+ */
+ 
+ /**
+ * @swagger
+ * /orgs/{org-name}/comments:
+ *  delete:
+ *    description: Use to soft delete all comments associated with a particular organization
+ *    responses:
+ *      '200':
+ *        description: All comments associated with the organization have been deleted
+ *      '404':
+ *        description: Organization does not exist in MongoDB
+ *    parameters:
+ *     - in: path
+ *       name: org-name   # Note the name is the same as in the path
+ *       required: true
+ *       type: string
+ *       description: The Github Organization name
+ */
+ 
+  /**
+ * @swagger
+ * /orgs/{org-name}/members:
+ *  get:
+ *    description: Use to return an array of member of an organization
+ *    responses:
+ *      '200':
+ *        description: All members of an organization have been retrieved
+ *      '404':
+ *        description: Organization does not exist in Github
+ *    parameters:
+ *     - in: path
+ *       name: org-name   # Note the name is the same as in the path
+ *       required: true
+ *       type: string
+ *       description: The Github Organization name
+ */
+ 
 module.exports = server;
