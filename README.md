@@ -36,6 +36,7 @@ Steps to build a Docker image:
          docker-compose -p test run --rm web npm run test
 
    Sample test result:
+   
          PASS  tests/routes.test.js (19.228 s)
             Post Endpoints
             ✓ should save a comment to db (1018 ms)
